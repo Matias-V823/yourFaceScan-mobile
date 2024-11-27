@@ -23,3 +23,9 @@ git commit -m "mensaje"
 ```bash
 git push origin nombre-rama
 ```
+
+
+## Comando para iniciar proyecto 
+```bash
+npx expo start
+```
