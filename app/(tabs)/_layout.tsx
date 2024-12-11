@@ -1,82 +1,103 @@
 import React from 'react';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, Tabs } from 'expo-router';
-import { Pressable, View, Text, StyleSheet } from 'react-native';
-
+import { Platform, StyleSheet, View, StatusBar } from 'react-native';
+import { Tabs } from 'expo-router';
+import { MaterialIcons } from '@expo/vector-icons';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
+import { HapticTab } from '@/components/HapticTab';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
-
-function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>['name'];
-  color: string;
-}) {
-  return <FontAwesome size={25} style={{ marginBottom: -3 }} {...props} />;
-}
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <Tabs>
-      <Tabs.Screen
-        name="inicio"
-        options={{
-          title: 'Inicio',
-          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
-          headerLeft: () => (
-            <View style={styles.headerLeftContainer}>
-              <Text style={styles.headerLeftText}>Bienvenido, Matias</Text>
-            </View>
-          ),
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <FontAwesome
-                    name="info-circle"
-                    size={25}
-                    color={Colors[colorScheme ?? 'light'].text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="camara"
-        options={{
-          title: 'Camara',
-          tabBarIcon: ({ color }) => <TabBarIcon name="camera" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="asistencia"
-        options={{
-          title: 'Asistencia',
-          tabBarIcon: ({ color }) => <TabBarIcon name="wechat" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="perfil"
-        options={{
-          title: 'Perfil',
-          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
-        }}
-      />
-    </Tabs>
+    <SafeAreaInsetsContext.Consumer>
+      {(insets) => (
+        <View
+          style={[
+            styles.container,
+            {
+              backgroundColor: Colors[colorScheme ?? 'light'].background,
+              paddingTop: insets?.top || 0,
+            },
+          ]}
+        >
+          {/* Configuración de la barra de estado */}
+          <StatusBar
+            barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'}
+            backgroundColor={Colors[colorScheme ?? 'light'].background}
+          />
+
+          <Tabs
+            screenOptions={{
+              tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+              headerShown: false,
+              tabBarButton: HapticTab,
+              tabBarStyle: Platform.select({
+                ios: {
+                  position: 'absolute',
+                  backgroundColor: Colors[colorScheme ?? 'light'].background,
+                  borderTopWidth: 0,
+                  elevation: 0,
+                },
+                default: {
+                  backgroundColor: Colors[colorScheme ?? 'light'].background,
+                },
+              }),
+            }}
+          >
+            {/* Inicio */}
+            <Tabs.Screen
+              name="inicio"
+              options={{
+                title: 'Inicio',
+                tabBarIcon: ({ color }) => (
+                  <MaterialIcons size={28} name="home" color={color} />
+                ),
+              }}
+            />
+
+            {/* Cámara */}
+            <Tabs.Screen
+              name="camara"
+              options={{
+                title: 'Cámara',
+                tabBarIcon: ({ color }) => (
+                  <MaterialIcons size={28} name="photo-camera" color={color} />
+                ),
+              }}
+            />
+
+            {/* Asistencia */}
+            <Tabs.Screen
+              name="asistencia"
+              options={{
+                title: 'Asistencia',
+                tabBarIcon: ({ color }) => (
+                  <MaterialIcons size={28} name="forum" color={color} />
+                ),
+              }}
+            />
+
+            {/* Perfil */}
+            <Tabs.Screen
+              name="perfil"
+              options={{
+                title: 'Perfil',
+                tabBarIcon: ({ color }) => (
+                  <MaterialIcons size={28} name="account-circle" color={color} />
+                ),
+              }}
+            />
+          </Tabs>
+        </View>
+      )}
+    </SafeAreaInsetsContext.Consumer>
   );
 }
 
 const styles = StyleSheet.create({
-  headerLeftContainer: {
-    marginLeft: 15,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  headerLeftText: {
-    fontSize: 16,
-    fontWeight: 'bold',
+  container: {
+    flex: 1,
   },
 });
