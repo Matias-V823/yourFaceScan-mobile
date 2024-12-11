@@ -14,6 +14,7 @@ import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import PerfilModal from '../(modal)/perfil';
 import PrivacidadModal from '../(modal)/privacidad';
 import AcercaModal from '../(modal)/acerca';
+import { getProfile } from '@/apis/apiYourFace';
 
 const Perfil = () => {
   const colorScheme = useColorScheme();
@@ -23,6 +24,11 @@ const Perfil = () => {
   const [modalVisible, setModalVisible] = useState<string | null>(null);
 
   const closeModal = () => setModalVisible(null);
+
+  const getPerfil = () =>{
+    console.log('Perfil: ', getProfile())
+  }
+
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -96,7 +102,7 @@ const Perfil = () => {
       >
         <Ionicons name="log-out-outline" size={22} color={theme.background} style={styles.icon} />
         <View style={styles.textContainer}>
-          <Text style={[styles.optionTitle, { color: theme.background }]}>Cerrar Sesión</Text>
+          <Text style={[styles.optionTitle, { color: theme.background }]} onPress={() => getPerfil()}>Cerrar Sesión</Text>
           <Text style={[styles.optionSubtitle, { color: theme.background }]}>
             Sal de tu cuenta actual
           </Text>

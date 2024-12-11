@@ -68,11 +68,11 @@ export default function TabLayout() {
               }}
             />
 
-            {/* Asistencia */}
+            {/* Historial */}
             <Tabs.Screen
               name="asistencia"
               options={{
-                title: 'Asistencia',
+                title: 'Historial',
                 tabBarIcon: ({ color }) => (
                   <MaterialIcons size={28} name="forum" color={color} />
                 ),
