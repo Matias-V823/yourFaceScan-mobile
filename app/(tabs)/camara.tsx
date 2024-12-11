@@ -70,7 +70,7 @@ const Camara = () => {
       setResponseData(scan.data); // Para mostrar en el modal
       setModalVisible(true);
     } catch (error) {
-      Alert.alert('Error', 'Error al enviar la imagen: ' + error.message);
+      Alert.alert('Error', 'Error al detectar la imagen: ' + error.message);
       console.error(error);
     }
   };

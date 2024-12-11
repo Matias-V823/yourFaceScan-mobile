@@ -16,6 +16,7 @@ import Logo from '../../assets/images/Logo.png';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import NoticiasModal from '../(modal)/detalles';
+import { useGlobalState } from '../../GlobalState'; 
 
 export default function InicioScreen() {
   const systemTheme = useColorScheme();
@@ -42,6 +43,10 @@ export default function InicioScreen() {
         'El sistema de escaneo facial ahora es más rápido y preciso, gracias a los avances en nuestro algoritmo de reconocimiento.',
     },
   ];
+
+  // Obtener los escaneos del contexto
+  const { scans } = useGlobalState();
+  const totalScans = scans.length; // Contar los elementos en el arreglo de escaneos
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -77,7 +82,7 @@ export default function InicioScreen() {
           <TouchableOpacity style={[styles.statBox, { backgroundColor: theme.statButtonBackground }]}>
             <MaterialIcons name="remove-red-eye" size={32} color={theme.tint} />
             <Text style={[styles.statTitle, { color: theme.text }]}>Escaneos</Text>
-            <Text style={[styles.statValue, { color: theme.tint }]}>12</Text>
+            <Text style={[styles.statValue, { color: theme.tint }]}>{totalScans}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.statBox, { backgroundColor: theme.statButtonBackground }]}>
             <MaterialIcons name="notifications" size={32} color={theme.tint} />
@@ -171,6 +176,7 @@ export default function InicioScreen() {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
