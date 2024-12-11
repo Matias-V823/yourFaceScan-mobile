@@ -1,6 +1,4 @@
 
-
-
 export const getLogin = async (username: string, password: string) => {
     try {
         const response = await fetch(`${process.env.URL_API}/sesion/login/`, {
