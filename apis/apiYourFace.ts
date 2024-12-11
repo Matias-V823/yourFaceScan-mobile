@@ -1,7 +1,7 @@
 
 export const getLogin = async (username: string, password: string) => {
     try {
-        const response = await fetch(`${process.env.URL_API}/sesion/login/`, {
+        const response = await fetch(`https://x7dh58bh-8000.brs.devtunnels.ms/api/auth/token/`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -11,6 +11,7 @@ export const getLogin = async (username: string, password: string) => {
               password,
             }),
           });
+    return response
     } catch (error) {
         console.log(error)
     }
