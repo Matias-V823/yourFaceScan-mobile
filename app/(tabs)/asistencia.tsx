@@ -12,7 +12,6 @@ import {
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useColorScheme } from 'react-native';
 import Colors from '@/constants/Colors';
-import VerMasModal from '../(modal)/historial'; // Importar el modal
 import { useGlobalState } from '@/GlobalState';
 
 const Historial = () => {
@@ -29,12 +28,15 @@ const Historial = () => {
         { backgroundColor: theme.newsButtonBackground, borderColor: theme.buttonBorder },
       ]}
     >
-      <Image source={{ uri: item.data.Person.photo }} style={styles.image} />
+      {/* Muestra la imagen capturada */}
+      <Image source={{ uri: item.data.capturedImage || item.data.Person.photo }} style={styles.image} />
       <View style={styles.cardContent}>
         <Text style={[styles.name, { color: theme.text }]}>
           {item.data.Person.first_name} {item.data.Person.last_name}
         </Text>
-        <Text style={[styles.birthdate, { color: theme.text }]}>Fecha de nacimiento: {item.data.Person.birth_date}</Text>
+        <Text style={[styles.birthdate, { color: theme.text }]}>
+          Fecha de nacimiento: {item.data.Person.birth_date}
+        </Text>
         <TouchableOpacity
           style={[styles.button, { backgroundColor: theme.tint }]}
           onPress={() => setSelectedData(item)} // Almacena los datos en el estado
@@ -92,7 +94,44 @@ const Historial = () => {
           transparent={true}
           onRequestClose={() => setSelectedData(null)}
         >
-          <VerMasModal closeModal={() => setSelectedData(null)} data={selectedData.data} />
+          <View style={styles.modalBackground}>
+            <View style={[styles.modalContent, { backgroundColor: theme.newsButtonBackground }]}>
+              {/* Imagen capturada */}
+              <Image
+                source={{ uri: selectedData.data.capturedImage || selectedData.data.Person.photo }}
+                style={styles.modalImage}
+              />
+              <Text style={[styles.modalText, { color: theme.text }]}>
+                <Text style={styles.bold}>Nombre:</Text> {selectedData.data.Person.first_name}{' '}
+                {selectedData.data.Person.last_name}
+              </Text>
+              <Text style={[styles.modalText, { color: theme.text }]}>
+                <Text style={styles.bold}>Identificación:</Text> {selectedData.data.Person.identification}
+              </Text>
+              <Text style={[styles.modalText, { color: theme.text }]}>
+                <Text style={styles.bold}>Fecha de nacimiento:</Text> {selectedData.data.Person.birth_date}
+              </Text>
+              <Text style={[styles.modalText, { color: theme.text }]}>
+                <Text style={styles.bold}>Género:</Text> {selectedData.data.Person.gender}
+              </Text>
+              {selectedData.data.Records?.map((record, index) => (
+                <View key={index}>
+                  <Text style={[styles.modalText, { color: theme.text }]}>
+                    <Text style={styles.bold}>Tipo de registro:</Text> {record.record_type}
+                  </Text>
+                  <Text style={[styles.modalText, { color: theme.text }]}>
+                    <Text style={styles.bold}>Descripción:</Text> {record.description}
+                  </Text>
+                </View>
+              ))}
+              <TouchableOpacity
+                style={[styles.buttonClose, { backgroundColor: theme.tint }]}
+                onPress={() => setSelectedData(null)}
+              >
+                <Text style={[styles.buttonCloseText, { color: theme.background }]}>Cerrar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </Modal>
       )}
     </View>
@@ -172,5 +211,40 @@ const styles = StyleSheet.create({
   birthdate: {
     fontSize: 14,
     marginBottom: 10,
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '90%',
+    padding: 20,
+    borderRadius: 15,
+    alignItems: 'center',
+  },
+  modalImage: {
+    width: 150,
+    height: 150,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  modalText: {
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  bold: {
+    fontWeight: 'bold',
+  },
+  buttonClose: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginTop: 20,
+  },
+  buttonCloseText: {
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

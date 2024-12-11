@@ -60,16 +60,15 @@ const Camara = () => {
     try {
       const response = await postImage(imageUri);
 
-      // Almacena la respuesta para mostrarla en el modal
-      setResponseData(response);
-      setModalVisible(true);
-
-      // Agrega el escaneo al estado global
+      // Almacena la respuesta y la imagen en el estado global
       const scan = {
         id: new Date().toISOString(),
-        data: response,
+        data: { ...response, capturedImage: imageUri },
       };
       addScan(scan);
+
+      setResponseData(scan.data); // Para mostrar en el modal
+      setModalVisible(true);
     } catch (error) {
       Alert.alert('Error', 'Error al enviar la imagen: ' + error.message);
       console.error(error);
@@ -109,8 +108,9 @@ const Camara = () => {
       >
         <View style={styles.modalBackground}>
           <View style={[styles.modalContent, { backgroundColor: theme.newsButtonBackground }]}>
-            {responseData ? (
+            {responseData && (
               <>
+                <Image source={{ uri: responseData.capturedImage }} style={styles.modalImage} />
                 <Text style={[styles.modalText, { color: theme.text }]}>
                   <Text style={styles.bold}>Nombre:</Text> {responseData.Person.first_name} {responseData.Person.last_name}
                 </Text>
@@ -123,19 +123,7 @@ const Camara = () => {
                 <Text style={[styles.modalText, { color: theme.text }]}>
                   <Text style={styles.bold}>Género:</Text> {responseData.Person.gender}
                 </Text>
-                {responseData.Records?.map((record: any, index: number) => (
-                  <View key={index}>
-                    <Text style={[styles.modalText, { color: theme.text }]}>
-                      <Text style={styles.bold}>Tipo de registro:</Text> {record.record_type}
-                    </Text>
-                    <Text style={[styles.modalText, { color: theme.text }]}>
-                      <Text style={styles.bold}>Descripción:</Text> {record.description}
-                    </Text>
-                  </View>
-                ))}
               </>
-            ) : (
-              <Text style={[styles.modalText, { color: theme.text }]}>Cargando...</Text>
             )}
             <TouchableOpacity
               style={[styles.buttonClose, { backgroundColor: theme.tint }]}
@@ -204,6 +192,12 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 15,
     alignItems: 'center',
+  },
+  modalImage: {
+    width: 150,
+    height: 150,
+    borderRadius: 10,
+    marginBottom: 10,
   },
   modalText: {
     fontSize: 16,
