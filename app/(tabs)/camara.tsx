@@ -18,8 +18,8 @@ import { postImage } from '@/apis/apiYourFace';
 const Camara = () => {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [imageUri, setImageUri] = useState<string | null>(null);
-  const [analysisResult, setAnalysisResult] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState<string>('');
 
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme || 'light'];
@@ -41,7 +41,7 @@ const Camara = () => {
     const result = await ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [1, 1], // Forzar recorte cuadrado
+      aspect: [4, 3],
       quality: 1,
     });
 
@@ -50,65 +50,68 @@ const Camara = () => {
     }
   };
 
-  const analyzeImage = async () => {
+  const sendImage = async () => {
     if (!imageUri) {
-      Alert.alert('Error', 'No hay imagen seleccionada para analizar');
+      Alert.alert('Error', 'No hay imagen seleccionada para enviar');
       return;
     }
-    setLoading(true);
     try {
       const response = await postImage(imageUri);
-      setAnalysisResult(response.result || 'Análisis completo.');
+      setModalMessage('Imagen enviada correctamente. Respuesta de la API: ' + JSON.stringify(response));
+      setModalVisible(true);
     } catch (error) {
-      setAnalysisResult('Error al analizar la imagen.');
-    } finally {
-      setLoading(false);
+      setModalMessage('Error al enviar la imagen: ' + error.message);
+      setModalVisible(true);
     }
   };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      {/* Encabezado */}
-      <View style={styles.header}>
-        <Ionicons name="camera-outline" size={28} color={theme.tint} />
-        <Text style={[styles.title, { color: theme.tint }]}>Escaneo Facial</Text>
-      </View>
+      {/* Título */}
+      <Text style={[styles.title, { color: theme.text }]}>Cámara</Text>
 
-      {/* Contenedor de Cámara */}
-      <View style={styles.cameraContainer}>
-        {imageUri ? (
-          <Image source={{ uri: imageUri }} style={styles.preview} />
-        ) : (
-          <View style={styles.placeholder} />
-        )}
-      </View>
-
-      {/* Botón Escanear */}
+      {/* Botón de Cámara */}
       <TouchableOpacity
-        style={[styles.scanButton, { backgroundColor: theme.tint }]}
+        style={[styles.button, { backgroundColor: theme.tint }]}
         onPress={openCamera}
       >
-        <Text style={[styles.scanButtonText, { color: theme.background }]}>
-          Escanear
-        </Text>
+        <Ionicons name="camera" size={20} color={theme.background} style={styles.icon} />
+        <Text style={[styles.buttonText, { color: theme.background }]}>Abrir Cámara</Text>
       </TouchableOpacity>
 
-      {/* Resultado */}
-      <View style={[styles.resultContainer, { borderColor: theme.buttonBorder }]}>
-        {loading ? (
-          <Text style={[styles.resultText, { color: theme.text }]}>
-            Analizando imagen...
-          </Text>
-        ) : analysisResult ? (
-          <Text style={[styles.resultText, { color: theme.text }]}>
-            {analysisResult}
-          </Text>
-        ) : (
-          <Text style={[styles.resultPlaceholder, { color: theme.text }]}>
-            El resultado del análisis aparecerá aquí.
-          </Text>
-        )}
-      </View>
+      {/* Imagen Capturada */}
+      {imageUri && (
+        <View style={styles.imageContainer}>
+          <Image source={{ uri: imageUri }} style={styles.preview} />
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: theme.tint }]}
+            onPress={sendImage}
+          >
+            <Ionicons name="send" size={20} color={theme.background} style={styles.icon} />
+            <Text style={[styles.buttonText, { color: theme.background }]}>Enviar Imagen</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Modal de Mensaje */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(!modalVisible)}
+      >
+        <View style={styles.modalBackground}>
+          <View style={[styles.modalContent, { backgroundColor: theme.newsButtonBackground }]}>
+            <Text style={[styles.modalText, { color: theme.text }]}>{modalMessage}</Text>
+            <TouchableOpacity
+              style={[styles.buttonClose, { backgroundColor: theme.tint }]}
+              onPress={() => setModalVisible(!modalVisible)}
+            >
+              <Text style={[styles.buttonCloseText, { color: theme.background }]}>Cerrar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -119,64 +122,68 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-  },
-  header: {
-    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginLeft: 10,
+    marginBottom: 20,
   },
-  cameraContainer: {
-    width: '100%',
-    height: 200,
-    justifyContent: 'center',
+  button: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
-  },
-  placeholder: {
-    width: '80%',
-    height: '100%',
-    backgroundColor: '#E0E0E0',
-    borderRadius: 20,
-  },
-  preview: {
-    width: '80%',
-    height: '100%',
-    borderRadius: 20,
-    resizeMode: 'cover',
-  },
-  scanButton: {
+    justifyContent: 'center',
     paddingVertical: 15,
-    paddingHorizontal: 60,
+    paddingHorizontal: 20,
     borderRadius: 10,
-    marginBottom: 20,
-    alignSelf: 'center',
+    marginVertical: 10,
   },
-  scanButtonText: {
+  buttonText: {
     fontSize: 16,
     fontWeight: 'bold',
+    marginLeft: 10,
   },
-  resultContainer: {
-    width: '90%',
-    height: 150,
-    borderWidth: 1,
+  icon: {
+    marginRight: 5,
+  },
+  imageContainer: {
+    marginVertical: 20,
+    alignItems: 'center',
+  },
+  preview: {
+    width: 250,
+    height: 250,
     borderRadius: 10,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#CCC',
+  },
+  modalBackground: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 10,
-    alignSelf: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
-  resultText: {
+  modalContent: {
+    width: '80%',
+    padding: 20,
+    borderRadius: 15,
+    alignItems: 'center',
+  },
+  modalText: {
     fontSize: 16,
+    marginBottom: 20,
     textAlign: 'center',
   },
-  resultPlaceholder: {
-    fontSize: 14,
+  buttonClose: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+  },
+  buttonCloseText: {
+    fontSize: 16,
+    fontWeight: 'bold',
     textAlign: 'center',
-    opacity: 0.5,
   },
 });
