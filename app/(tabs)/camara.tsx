@@ -8,17 +8,14 @@ import {
   Alert,
   Modal,
   Pressable,
-  TouchableOpacity
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { Camera } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from 'react-native';
 import { postImage } from '@/apis/apiYourFace';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useGlobalState } from '@/GlobalState';
 
 
 const Camara = () => {
@@ -29,6 +26,7 @@ const Camara = () => {
 
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme || 'light'];
+  const { addScan } = useGlobalState();
 
 
   const requestPermission = async () => {
@@ -46,7 +44,7 @@ const Camara = () => {
     }
 
     const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
@@ -66,6 +64,11 @@ const Camara = () => {
       const response = await postImage(imageUri);
       setModalMessage('Imagen enviada correctamente. Respuesta de la API: ' + JSON.stringify(response));
       setModalVisible(true);
+      const scan = {
+        id: new Date().toISOString(), 
+        data: response, 
+      };
+      addScan(scan)
     } catch (error) {
       setModalMessage('Error al enviar la imagen: ' + error.message);
       setModalVisible(true);

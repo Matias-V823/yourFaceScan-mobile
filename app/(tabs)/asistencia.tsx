@@ -13,74 +13,28 @@ import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useColorScheme } from 'react-native';
 import Colors from '@/constants/Colors';
 import VerMasModal from '../(modal)/historial'; // Importar el modal
-
-// Definición de tipos para los elementos del historial
-interface Consulta {
-  id: string;
-  nombre: string;
-  apellidoPaterno: string;
-  apellidoMaterno: string;
-  rut: string;
-  fechaNacimiento: string;
-  genero: string;
-  foto: string;
-}
-
-// Datos de ejemplo para la lista
-const data: Consulta[] = [
-  {
-    id: '1',
-    nombre: 'Tomas',
-    apellidoPaterno: 'Poblete',
-    apellidoMaterno: 'Chamorro',
-    rut: '18.123.456-7',
-    fechaNacimiento: '18/10/2001',
-    genero: 'Masculino',
-    foto: 'https://via.placeholder.com/100',
-  },
-  {
-    id: '2',
-    nombre: 'María',
-    apellidoPaterno: 'González',
-    apellidoMaterno: 'Soto',
-    rut: '12.345.678-9',
-    fechaNacimiento: '12/07/1995',
-    genero: 'Femenino',
-    foto: 'https://via.placeholder.com/100',
-  },
-  {
-    id: '3',
-    nombre: 'Juan',
-    apellidoPaterno: 'Pérez',
-    apellidoMaterno: 'López',
-    rut: '9.876.543-2',
-    fechaNacimiento: '25/12/1980',
-    genero: 'Masculino',
-    foto: 'https://via.placeholder.com/100',
-  },
-];
+import { useGlobalState } from '@/GlobalState';
 
 const Historial = () => {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme || 'light'];
 
-  const [selectedData, setSelectedData] = useState<Consulta | null>(null);
+  const { scans } = useGlobalState(); // Obtener los datos del contexto global
+  const [selectedData, setSelectedData] = useState(null);
 
-  const renderItem = ({ item }: { item: Consulta }) => (
+  const renderItem = ({ item }) => (
     <View
       style={[
         styles.card,
         { backgroundColor: theme.newsButtonBackground, borderColor: theme.buttonBorder },
       ]}
     >
-      <Image source={{ uri: item.foto }} style={styles.image} />
+      <Image source={{ uri: item.data.Person.photo }} style={styles.image} />
       <View style={styles.cardContent}>
         <Text style={[styles.name, { color: theme.text }]}>
-          {item.nombre} {item.apellidoPaterno}
+          {item.data.Person.first_name} {item.data.Person.last_name}
         </Text>
-        <Text style={[styles.birthdate, { color: theme.text }]}>
-          Fecha de nacimiento: {item.fechaNacimiento}
-        </Text>
+        <Text style={[styles.birthdate, { color: theme.text }]}>Fecha de nacimiento: {item.data.Person.birth_date}</Text>
         <TouchableOpacity
           style={[styles.button, { backgroundColor: theme.tint }]}
           onPress={() => setSelectedData(item)} // Almacena los datos en el estado
@@ -124,7 +78,7 @@ const Historial = () => {
       {/* Lista de consultas recientes */}
       <Text style={[styles.sectionTitle, { color: theme.text }]}>Consultas Recientes</Text>
       <FlatList
-        data={data}
+        data={scans}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
@@ -138,7 +92,7 @@ const Historial = () => {
           transparent={true}
           onRequestClose={() => setSelectedData(null)}
         >
-          <VerMasModal closeModal={() => setSelectedData(null)} data={selectedData} />
+          <VerMasModal closeModal={() => setSelectedData(null)} data={selectedData.data} />
         </Modal>
       )}
     </View>
