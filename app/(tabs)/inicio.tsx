@@ -109,6 +109,7 @@ export default function InicioScreen() {
           <View style={styles.buttonRow}>
             <TouchableOpacity
               style={[styles.secondaryButton, { borderColor: theme.tint }]}
+              onPress={() => router.replace('/(tabs)/asistencia')}
             >
               <Text style={[styles.buttonTextSecondary, { color: theme.tint }]}>
                 Historial

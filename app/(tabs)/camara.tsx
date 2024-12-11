@@ -7,7 +7,6 @@ import {
   Image,
   Alert,
   Modal,
-  Pressable,
 } from 'react-native';
 import { Camera } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
@@ -17,17 +16,15 @@ import { useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useGlobalState } from '@/GlobalState';
 
-
 const Camara = () => {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [modalMessage, setModalMessage] = useState<string>('');
+  const [responseData, setResponseData] = useState<any | null>(null);
 
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme || 'light'];
   const { addScan } = useGlobalState();
-
 
   const requestPermission = async () => {
     const { status } = await Camera.requestCameraPermissionsAsync();
@@ -62,25 +59,27 @@ const Camara = () => {
     }
     try {
       const response = await postImage(imageUri);
-      setModalMessage('Imagen enviada correctamente. Respuesta de la API: ' + JSON.stringify(response));
+
+      // Almacena la respuesta para mostrarla en el modal
+      setResponseData(response);
       setModalVisible(true);
+
+      // Agrega el escaneo al estado global
       const scan = {
-        id: new Date().toISOString(), 
-        data: response, 
+        id: new Date().toISOString(),
+        data: response,
       };
-      addScan(scan)
+      addScan(scan);
     } catch (error) {
-      setModalMessage('Error al enviar la imagen: ' + error.message);
-      setModalVisible(true);
+      Alert.alert('Error', 'Error al enviar la imagen: ' + error.message);
+      console.error(error);
     }
   };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      {/* Título */}
       <Text style={[styles.title, { color: theme.text }]}>Cámara</Text>
 
-      {/* Botón de Cámara */}
       <TouchableOpacity
         style={[styles.button, { backgroundColor: theme.tint }]}
         onPress={openCamera}
@@ -89,7 +88,6 @@ const Camara = () => {
         <Text style={[styles.buttonText, { color: theme.background }]}>Abrir Cámara</Text>
       </TouchableOpacity>
 
-      {/* Imagen Capturada */}
       {imageUri && (
         <View style={styles.imageContainer}>
           <Image source={{ uri: imageUri }} style={styles.preview} />
@@ -103,19 +101,45 @@ const Camara = () => {
         </View>
       )}
 
-      {/* Modal de Mensaje */}
       <Modal
         animationType="slide"
         transparent={true}
         visible={modalVisible}
-        onRequestClose={() => setModalVisible(!modalVisible)}
+        onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalBackground}>
           <View style={[styles.modalContent, { backgroundColor: theme.newsButtonBackground }]}>
-            <Text style={[styles.modalText, { color: theme.text }]}>{modalMessage}</Text>
+            {responseData ? (
+              <>
+                <Text style={[styles.modalText, { color: theme.text }]}>
+                  <Text style={styles.bold}>Nombre:</Text> {responseData.Person.first_name} {responseData.Person.last_name}
+                </Text>
+                <Text style={[styles.modalText, { color: theme.text }]}>
+                  <Text style={styles.bold}>Identificación:</Text> {responseData.Person.identification}
+                </Text>
+                <Text style={[styles.modalText, { color: theme.text }]}>
+                  <Text style={styles.bold}>Fecha de nacimiento:</Text> {responseData.Person.birth_date}
+                </Text>
+                <Text style={[styles.modalText, { color: theme.text }]}>
+                  <Text style={styles.bold}>Género:</Text> {responseData.Person.gender}
+                </Text>
+                {responseData.Records?.map((record: any, index: number) => (
+                  <View key={index}>
+                    <Text style={[styles.modalText, { color: theme.text }]}>
+                      <Text style={styles.bold}>Tipo de registro:</Text> {record.record_type}
+                    </Text>
+                    <Text style={[styles.modalText, { color: theme.text }]}>
+                      <Text style={styles.bold}>Descripción:</Text> {record.description}
+                    </Text>
+                  </View>
+                ))}
+              </>
+            ) : (
+              <Text style={[styles.modalText, { color: theme.text }]}>Cargando...</Text>
+            )}
             <TouchableOpacity
               style={[styles.buttonClose, { backgroundColor: theme.tint }]}
-              onPress={() => setModalVisible(!modalVisible)}
+              onPress={() => setModalVisible(false)}
             >
               <Text style={[styles.buttonCloseText, { color: theme.background }]}>Cerrar</Text>
             </TouchableOpacity>
@@ -176,24 +200,26 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    width: '80%',
+    width: '90%',
     padding: 20,
     borderRadius: 15,
     alignItems: 'center',
   },
   modalText: {
     fontSize: 16,
-    marginBottom: 20,
-    textAlign: 'center',
+    marginBottom: 10,
+  },
+  bold: {
+    fontWeight: 'bold',
   },
   buttonClose: {
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 10,
+    marginTop: 20,
   },
   buttonCloseText: {
     fontSize: 16,
     fontWeight: 'bold',
-    textAlign: 'center',
   },
 });

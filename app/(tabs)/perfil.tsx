@@ -14,6 +14,7 @@ import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import PerfilModal from '../(modal)/perfil';
 import PrivacidadModal from '../(modal)/privacidad';
 import AcercaModal from '../(modal)/acerca';
+import { router } from 'expo-router';
 
 const Perfil = () => {
   const colorScheme = useColorScheme();
@@ -93,6 +94,7 @@ const Perfil = () => {
           { backgroundColor: theme.tint, borderColor: theme.tint },
         ]}
         accessibilityLabel="Cerrar sesión"
+        onPress={() => router.replace('/(auth)/login')}
       >
         <Ionicons name="log-out-outline" size={22} color={theme.background} style={styles.icon} />
         <View style={styles.textContainer}>

@@ -24,17 +24,18 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const data = { access: 'fakeToken' }; // Simulación de respuesta
+      const data = await getLogin(username, password); 
 
       if (data?.access) {
+        await AsyncStorage.setItem('access', data.access);
         Alert.alert('Éxito', 'Inicio de sesión exitoso');
-        router.replace('/(tabs)/inicio');
+        router.replace('/(tabs)/inicio'); // Redirige al usuario
       } else {
         Alert.alert('Error', 'Usuario o contraseña inválidos');
       }
     } catch (error) {
       Alert.alert('Error', 'Ocurrió un error al iniciar sesión');
-      console.error(error);
+      console.error('Error en el inicio de sesión:', error);
     } finally {
       setLoading(false);
     }
