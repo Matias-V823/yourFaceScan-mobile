@@ -1,18 +1,39 @@
-import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Modal,
+  useWindowDimensions,
+} from 'react-native';
 import { useColorScheme } from 'react-native';
 import Colors from '@/constants/Colors';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+// Importar los modales
+import PerfilModal from '../(modal)/perfil';
+import PrivacidadModal from '../(modal)/privacidad';
+import AcercaModal from '../(modal)/acerca';
 
 const Perfil = () => {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme || 'light'];
+  const { width } = useWindowDimensions();
+
+  const [modalVisible, setModalVisible] = useState<string | null>(null);
+
+  const closeModal = () => setModalVisible(null);
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      {/* Avatar */}
+      {/* Avatar (Ícono) */}
       <View style={styles.avatarContainer}>
-        <View style={[styles.avatarPlaceholder, { backgroundColor: theme.tabIconDefault }]}></View>
+        <Ionicons
+          name="person-circle"
+          size={width * 0.4}
+          color={theme.tint}
+          style={styles.avatarIcon}
+        />
         <Text style={[styles.userName, { color: theme.text }]}>Matías Jesús Varas Aquín</Text>
       </View>
 
@@ -23,49 +44,90 @@ const Perfil = () => {
             styles.option,
             { backgroundColor: theme.newsButtonBackground, borderColor: theme.buttonBorder },
           ]}
+          onPress={() => setModalVisible('perfil')}
+          accessibilityLabel="Configuración de perfil, ve y modifica tu usuario"
         >
           <Ionicons name="person-circle-outline" size={30} color={theme.tint} style={styles.icon} />
           <View style={styles.textContainer}>
             <Text style={[styles.optionTitle, { color: theme.text }]}>Configuración de Perfil</Text>
             <Text style={[styles.optionSubtitle, { color: theme.text }]}>Ve y modifica tu usuario</Text>
           </View>
+          <Ionicons name="chevron-forward" size={24} color={theme.tint} />
         </TouchableOpacity>
         <TouchableOpacity
           style={[
             styles.option,
             { backgroundColor: theme.newsButtonBackground, borderColor: theme.buttonBorder },
           ]}
+          onPress={() => setModalVisible('privacidad')}
+          accessibilityLabel="Privacidad, cambia tu contraseña"
         >
           <MaterialIcons name="privacy-tip" size={30} color={theme.tint} style={styles.icon} />
           <View style={styles.textContainer}>
             <Text style={[styles.optionTitle, { color: theme.text }]}>Privacidad</Text>
             <Text style={[styles.optionSubtitle, { color: theme.text }]}>Cambia tu contraseña</Text>
           </View>
+          <Ionicons name="chevron-forward" size={24} color={theme.tint} />
         </TouchableOpacity>
         <TouchableOpacity
           style={[
             styles.option,
             { backgroundColor: theme.newsButtonBackground, borderColor: theme.buttonBorder },
           ]}
+          onPress={() => setModalVisible('acerca')}
+          accessibilityLabel="Acerca de, datos de la aplicación"
         >
           <Ionicons name="information-circle-outline" size={30} color={theme.tint} style={styles.icon} />
           <View style={styles.textContainer}>
             <Text style={[styles.optionTitle, { color: theme.text }]}>Acerca de</Text>
             <Text style={[styles.optionSubtitle, { color: theme.text }]}>Datos de la aplicación</Text>
           </View>
+          <Ionicons name="chevron-forward" size={24} color={theme.tint} />
         </TouchableOpacity>
       </View>
 
       {/* Botón Cerrar Sesión */}
       <TouchableOpacity
         style={[
-          styles.logoutButton,
+          styles.option,
           { backgroundColor: theme.tint, borderColor: theme.tint },
         ]}
+        accessibilityLabel="Cerrar sesión"
       >
-        <Ionicons name="log-out-outline" size={24} color={theme.background} style={styles.icon} />
-        <Text style={[styles.logoutButtonText, { color: theme.background }]}>Cerrar Sesión</Text>
+        <Ionicons name="log-out-outline" size={22} color={theme.background} style={styles.icon} />
+        <View style={styles.textContainer}>
+          <Text style={[styles.optionTitle, { color: theme.background }]}>Cerrar Sesión</Text>
+          <Text style={[styles.optionSubtitle, { color: theme.background }]}>
+            Sal de tu cuenta actual
+          </Text>
+        </View>
       </TouchableOpacity>
+
+      {/* Modales */}
+      <Modal
+        visible={modalVisible === 'perfil'}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={closeModal}
+      >
+        <PerfilModal closeModal={closeModal} />
+      </Modal>
+      <Modal
+        visible={modalVisible === 'privacidad'}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={closeModal}
+      >
+        <PrivacidadModal closeModal={closeModal} />
+      </Modal>
+      <Modal
+        visible={modalVisible === 'acerca'}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={closeModal}
+      >
+        <AcercaModal closeModal={closeModal} />
+      </Modal>
     </View>
   );
 };
@@ -83,10 +145,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 30,
   },
-  avatarPlaceholder: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
+  avatarIcon: {
     marginBottom: 10,
   },
   userName: {
@@ -119,19 +178,4 @@ const styles = StyleSheet.create({
   optionSubtitle: {
     fontSize: 14,
   },
-  logoutButton: {
-    width: '100%',
-    paddingVertical: 20,
-    borderRadius: 20,
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    borderWidth: 1,
-  },
-  logoutButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 8,
-  },
 });
-
