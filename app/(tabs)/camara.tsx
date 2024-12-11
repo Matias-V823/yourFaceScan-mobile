@@ -3,23 +3,25 @@ import {
   StyleSheet,
   Text,
   View,
-  Button,
+  TouchableOpacity,
   Image,
   Alert,
   Modal,
   Pressable,
   TouchableOpacity
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Camera } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
+import Colors from '@/constants/Colors';
+import { useColorScheme } from 'react-native';
 import { postImage } from '@/apis/apiYourFace';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 
-type Props = {};
-const Camara = (props: Props) => {
+const Camara = () => {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -44,7 +46,7 @@ const Camara = (props: Props) => {
     }
 
     const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ['images'],
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
@@ -192,4 +194,3 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-

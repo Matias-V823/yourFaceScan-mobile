@@ -24,14 +24,10 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const data = await getLogin(username, password);
+      const data = { access: 'fakeToken' }; // Simulación de respuesta
 
-      // Valida si el token de acceso existe
       if (data?.access) {
-        // Guarda el token en AsyncStorage
-        await AsyncStorage.setItem('accessToken', data.access);
-
-        // Redirige al usuario a la página de inicio
+        Alert.alert('Éxito', 'Inicio de sesión exitoso');
         router.replace('/(tabs)/inicio');
       } else {
         Alert.alert('Error', 'Usuario o contraseña inválidos');
