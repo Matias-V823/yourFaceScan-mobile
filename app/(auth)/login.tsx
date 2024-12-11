@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, Text, TouchableOpacity, ActivityIndicator, Alert, StyleSheet } from 'react-native';
 import { getLogin } from '@/apis/apiYourFace';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 
 export default function Login() {
@@ -14,27 +15,27 @@ export default function Login() {
       Alert.alert('Error', 'Por favor ingresa tu usuario y contraseña');
       return;
     }
-    setLoading(true);
-    try {
-      const response = await getLogin(username, password);
-      if (!response) {
-        setLoading(false);
-        Alert.alert('Error', 'No se pudo obtener respuesta del servidor');
-        return;
-      }
 
-      const data = await response.json();
+    setLoading(true);
+
+    try {
+      const data = await getLogin(username, password);
+
+      // Valida si el token de acceso existe
       if (data?.access) {
-        setLoading(false);
+        // Guarda el token en AsyncStorage
+        await AsyncStorage.setItem('accessToken', data.access);
+
+        // Redirige al usuario a la página de inicio
         router.replace('/(tabs)/inicio');
       } else {
-        setLoading(false);
         Alert.alert('Error', 'Usuario o contraseña inválidos');
       }
     } catch (error) {
-      setLoading(false);
       Alert.alert('Error', 'Ocurrió un error al iniciar sesión');
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -57,8 +58,8 @@ export default function Login() {
         value={password}
         onChangeText={setPassword}
       />
-      <TouchableOpacity 
-        style={[styles.button, loading && { opacity: 0.7 }]} 
+      <TouchableOpacity
+        style={[styles.button, loading && { opacity: 0.7 }]}
         onPress={handleLogin}
         disabled={loading}
       >

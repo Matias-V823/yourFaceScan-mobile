@@ -1,80 +1,91 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
 export const getLogin = async (username: string, password: string) => {
-    try {
-        const response = await fetch(`https://x7dh58bh-8000.brs.devtunnels.ms/api/auth/token/`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              username,
-              password,
-            }),
-          });
-    return response
-    } catch (error) {
-        console.log(error)
+  try {
+    const response = await fetch(`${apiUrl}/api/auth/token/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password }),
+    });
+
+    // Valida que la respuesta sea válida
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-}
 
-
+    // Asegúrate de que la respuesta sea JSON
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error en getLogin:', error);
+    throw error;
+  }
+};
 
 export const postImage = async (imageUri: string) => {
-    try {
-      const formData = new FormData();
-      formData.append('image', {
-        uri: imageUri,
-        type: 'image/jpeg', 
-        name: 'image.jpg', 
-      } as unknown as Blob); 
-  
-      const response = await fetch(`${process.env.URL_API}/api/recognition/`, {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'Accept': 'application/json',
-          'Authorization' : 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzMzMTk2MDA5LCJpYXQiOjE3MzMxOTQyMDksImp0aSI6IjJiMmVlY2QwZTA5MzQ5MjFhZDY0ODMwOGFhZjllYWEzIiwidXNlcl9pZCI6NX0.Z2ws0c8G-_k5a_g23joOGwe7e7vcGDXzAb-a8_kM54g',
-        },
-      });
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-  
-      const data = await response.json(); // Si la respuesta es JSON
-      console.log('Respuesta del servidor:', data);
-      return data;
-    } catch (error) {
-      console.error('Error al enviar la imagen:', error);
-      throw error;
+  try {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    if (!accessToken) {
+      throw new Error('No se encontró el token de acceso.');
     }
+
+    const formData = new FormData();
+    formData.append('image', {
+      uri: imageUri,
+      type: 'image/jpeg',
+      name: 'image.jpg',
+    } as unknown as Blob);
+
+    const response = await fetch(`${apiUrl}/api/recognition/`, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('Respuesta del servidor:', data);
+    return data;
+  } catch (error) {
+    console.error('Error al enviar la imagen:', error);
+    throw error;
+  }
 };
-  
 
 export const getProfile = async () => {
-    try {
-      const response = await fetch(`https://x7dh58bh-8000.brs.devtunnels.ms/api/users/me/`, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Authorization' : 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzMzMTk2MDA5LCJpYXQiOjE3MzMxOTQyMDksImp0aSI6IjJiMmVlY2QwZTA5MzQ5MjFhZDY0ODMwOGFhZjllYWEzIiwidXNlcl9pZCI6NX0.Z2ws0c8G-_k5a_g23joOGwe7e7vcGDXzAb-a8_kM54g',
-        },
-      });
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json(); // Si la respuesta es JSON
-      console.log('Respuesta del servidor:', data);
-      return data;
-    } catch (error) {
-      console.error('Error al consultar datos usuario:', error);
-      throw error;
+  try {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    if (!accessToken) {
+      throw new Error('No se encontró el token de acceso.');
     }
+
+    const response = await fetch(`${apiUrl}/api/users/me/`, {
+      method: 'GET', // Cambié el método a GET porque típicamente "me" es una consulta
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('Respuesta del servidor:', data);
+    return data;
+  } catch (error) {
+    console.error('Error al consultar datos usuario:', error);
+    throw error;
+  }
 };
-
-
-
-
-

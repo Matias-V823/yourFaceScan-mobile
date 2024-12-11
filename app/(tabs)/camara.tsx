@@ -35,7 +35,7 @@ const Camara = (props: Props) => {
     }
 
     const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
@@ -53,7 +53,6 @@ const Camara = (props: Props) => {
     }
     try {
       const response = await postImage(imageUri);
-      // Aquí puedes adaptar el mensaje según la respuesta de tu API
       setModalMessage('Imagen enviada correctamente. Respuesta de la API: ' + JSON.stringify(response));
       setModalVisible(true);
     } catch (error) {
