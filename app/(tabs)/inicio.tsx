@@ -3,6 +3,7 @@ import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image } from 'rea
 import { useColorScheme } from 'react-native';
 import Logo from '../../assets/images/Logo.png';
 import Colors from '../../constants/Colors';
+import { router } from 'expo-router';
 
 export default function InicioScreen() {
   const systemTheme = useColorScheme();
@@ -49,7 +50,7 @@ export default function InicioScreen() {
         <View style={styles.quickAccessContainer}>
           <Text style={[styles.sectionTitle, { color: theme.text }]}>Acceso Rápido</Text>
           <View style={styles.buttonRow}>
-            <TouchableOpacity style={[styles.primaryButton, { backgroundColor: theme.tint }]}>
+            <TouchableOpacity style={[styles.primaryButton, { backgroundColor: theme.tint }]} onPress={() => router.replace('/(tabs)/camara')}>
               <Text style={styles.buttonTextPrimary}>Iniciar Escaneo</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.secondaryButton, { borderColor: theme.tint }]}>
